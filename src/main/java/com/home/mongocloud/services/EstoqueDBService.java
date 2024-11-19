@@ -2,15 +2,11 @@ package com.home.mongocloud.services;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.home.mongocloud.dtos.EstoqueDataLoader;
-import com.home.mongocloud.dtos.MedicamentoCEAFDataLoader;
 import com.home.mongocloud.models.Estoque;
 import com.home.mongocloud.models.MedicamentoCEAF;
 import com.home.mongocloud.repositories.EstoqueRepository;
