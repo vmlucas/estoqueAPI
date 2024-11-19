@@ -32,5 +32,6 @@ public class Estoque {
 
     @Field(name = "qtd")
     private int qtd;
-
+    
+    private List<MedicamentoCEAF> medicamentosCEAF;
 }

@@ -3,15 +3,25 @@ package com.home.mongocloud.repositories;
 import com.home.mongocloud.models.*;
 
 import java.util.*;
-import java.time.ZonedDateTime;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EstoqueRepository extends MongoRepository<Estoque, String> {
     
+
+    @Aggregation(pipeline = {
+    "{'$group': {'_id':'',Data:{ $max:$Data} }}"
+    })
+    Date buscarMaxData();
+     
+    @Aggregation(pipeline = {
+    "{'$match': {'Nome': /.*?0.*/}}",
+    "{'$match': { 'Data': ?1 } }"
+    })
+    List<Estoque> buscarMedicamentosData(String nome, Date data);
+
     /**
      * Return a list of object Estoque
      * 

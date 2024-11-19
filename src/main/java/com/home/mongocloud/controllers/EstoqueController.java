@@ -1,32 +1,22 @@
 package com.home.mongocloud.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.home.mongocloud.repositories.*;
 import com.home.mongocloud.models.*;
-import com.home.mongocloud.dtos.*;
-
-import java.time.ZonedDateTime;
+import com.home.mongocloud.services.*;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @RestController
 public class EstoqueController {   
     
-  EstoqueRepository estoqueRepository;
+  EstoqueDBService service;
 
-  @Autowired
-  MongoTemplate mongoTemplate;
-
-  public EstoqueController(EstoqueRepository estoqueRepository) {
-    this.estoqueRepository = estoqueRepository;
+  public EstoqueController(EstoqueDBService service ) {
+    this.service = service;
   }
   
   /**
@@ -35,10 +25,11 @@ public class EstoqueController {
    */
   @GetMapping("/buscarTipos")
   public ResponseEntity<List<String>> buscarTipos() {
-    List<String> lista = mongoTemplate.findDistinct("tipo", Estoque.class, String.class);
+    List<String> lista = service.buscarTipos();
     return ResponseEntity.ok(lista);
   }
 
+  
   /**
    * find the products names from a specific type "tipo" 
    * @param tipo - type of product
@@ -46,12 +37,18 @@ public class EstoqueController {
    */
   @GetMapping("/buscarNomeMedicamentos")
   public ResponseEntity<List<String>> buscarNomeMedicamentos(@RequestParam(value = "tipo" ) String tipo) {
-    Criteria criteria = Criteria.where("Tipo").is(tipo);
-    Query query = new Query();
-    query.addCriteria(criteria);
+    
+      List<String> lista = service.buscarNomeMedicamentos(tipo);
+      return ResponseEntity.ok(lista);
+  }
 
-    List<String> lista = mongoTemplate.findDistinct(query,"nome", Estoque.class, String.class);
+
+  @GetMapping("/buscarMedicamentosCEAF")
+  public ResponseEntity<List<Estoque>> buscarMedicamentosCEAF(@RequestParam(value = "nome" ) String nome) {
+      
+    List<Estoque> lista = service.buscarMedicamentosCEAF(nome);
     return ResponseEntity.ok(lista);
+    
   }
 
   /**
@@ -61,7 +58,7 @@ public class EstoqueController {
    */
   @GetMapping("/buscarMedicamentos")
   public ResponseEntity<List<Estoque>> buscarMedicamentos(@RequestParam(value = "nome" ) String nome) {
-      List<Estoque> lista = estoqueRepository.buscarMedicamento(nome);
+      List<Estoque> lista = service.buscarMedicamentos(nome);
       return ResponseEntity.ok(lista);
     
   }
@@ -79,20 +76,39 @@ public class EstoqueController {
   public ResponseEntity<List<Estoque>> buscarMedicamentosAnoMes(@RequestParam(value = "nome",defaultValue = "todos" ) String nome,
                                                                 @RequestParam("start") @DateTimeFormat(iso = ISO.DATE) Date start,
                                                                 @RequestParam("end") @DateTimeFormat(iso = ISO.DATE) Date end) {
-      if(nome.equals("todos")){                                                            
-        List<Estoque> lista = estoqueRepository.buscarMedicamentoAnoMes(start, end);
-        return ResponseEntity.ok(lista);
-      }
-      else{
-        List<Estoque> lista = estoqueRepository.buscarMedicamentoAnoMes(start, end).stream()
-                              .filter(estoque -> estoque.getNome().startsWith(nome)).collect(Collectors.toList());
 
+        List<Estoque> lista = service.buscarMedicamentosAnoMes(nome,start, end);
         return ResponseEntity.ok(lista);
-      }
-
     
   }
 
+  @GetMapping("/loadData")
+  public ResponseEntity<List<Estoque>> loadEstoqueData() {
+
+       List<Estoque> estoquesCreated = service.loadData();
+    
+       if( estoquesCreated.size() > 0){
+        return new ResponseEntity<>(estoquesCreated, HttpStatus.CREATED);
+       }
+       else{
+        return new ResponseEntity<>(estoquesCreated, HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+
+  }
+
+  @GetMapping("/loadMedicamentosCeaf")
+  public ResponseEntity<List<MedicamentoCEAF>> loadMedicamentosCeaf() {
+
+       List<MedicamentoCEAF> medsCeafCreated = service.loadMedicamentosCEAF();
+    
+       if( medsCeafCreated.size() > 0){
+        return new ResponseEntity<>(medsCeafCreated, HttpStatus.CREATED);
+       }
+       else{
+        return new ResponseEntity<>(medsCeafCreated, HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+
+  }
   
 
   
