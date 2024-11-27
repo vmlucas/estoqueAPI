@@ -30,7 +30,11 @@ public class EstoqueDataLoader {
             //ABEMACICLIBE 50 MG,540,76.12,11/11/2024,MEDICAMENTO
             estoque.setNome(item[0]);
             estoque.setQtd(Integer.parseInt(item[1]));
-            estoque.setValor(Double.parseDouble(item[2]));
+            //"0,15"
+            String num = item[2];
+            num = num.replace("\"","");
+            num = num.replace(",", ".");
+            estoque.setValor(Double.parseDouble(num));
             DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
             Date date = formatter.parse(item[3]);
             estoque.setData(date);
@@ -58,6 +62,15 @@ public class EstoqueDataLoader {
       }
     }
 
-   
+   /*public static void main(String[] args){
+    EstoqueDataLoader loader = new EstoqueDataLoader();
+
+    try{
+      System.out.println(loader.loadList());
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
+   }*/
 
 }

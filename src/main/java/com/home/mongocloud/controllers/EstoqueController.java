@@ -83,16 +83,29 @@ public class EstoqueController {
   }
 
   @GetMapping("/loadData")
-  public ResponseEntity<List<Estoque>> loadEstoqueData() {
-
-       List<Estoque> estoquesCreated = service.loadData();
-    
-       if( estoquesCreated.size() > 0){
+  public ResponseEntity<List<Estoque>> loadEstoqueData(@RequestParam(value = "key", defaultValue = "sem chave") String key) {
+    List<Estoque> estoquesCreated = null;
+    try{
+      estoquesCreated = service.loadData(key);
+      if( estoquesCreated.size() > 0){
         return new ResponseEntity<>(estoquesCreated, HttpStatus.CREATED);
-       }
-       else{
+      }
+      else{
         return new ResponseEntity<>(estoquesCreated, HttpStatus.INTERNAL_SERVER_ERROR);
-       }
+      }
+    }
+    catch(Exception ex){
+      estoquesCreated = new ArrayList<Estoque>();
+      Estoque e = new Estoque();
+      e.setNome(ex.getMessage());
+      estoquesCreated.add(e);
+
+      return new ResponseEntity<>(estoquesCreated, HttpStatus.FORBIDDEN);
+    }  
+    
+    
+    
+       
 
   }
 

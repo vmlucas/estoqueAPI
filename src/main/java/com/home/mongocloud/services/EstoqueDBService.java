@@ -3,6 +3,7 @@ package com.home.mongocloud.services;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import com.home.mongocloud.repositories.MedicamentosCEAFRepository;
 @Service
 public class EstoqueDBService {
 
+    @Value("${authAPIKey}")
+    private String authAPIKey; 
     EstoqueRepository estoqueRepository;
     MedicamentosCEAFRepository ceafRepository;
     @Autowired
@@ -79,20 +82,25 @@ public class EstoqueDBService {
       }
     }
 
-    public List<Estoque> loadData() {
+    public List<Estoque> loadData(String key) throws Exception{
 
-      EstoqueDataLoader eloader = new EstoqueDataLoader();
-      
-      try{
-        List<Estoque> list = eloader.loadList();
-        List<Estoque> estoquesCreated = estoqueRepository.saveAll(list);    
-        return estoquesCreated;
-      }
-      catch(Exception e){
-        e.printStackTrace();
-        List<Estoque> estoquesCreated = new ArrayList<Estoque>();
-        return estoquesCreated;
-      }
+        if( key.equals(authAPIKey)) 
+        {          
+          EstoqueDataLoader eloader = new EstoqueDataLoader();                              
+          try{
+            List<Estoque> list = eloader.loadList();
+            List<Estoque> estoquesCreated = estoqueRepository.saveAll(list);    
+            return estoquesCreated;
+          }
+          catch(Exception e){
+            e.printStackTrace();
+            List<Estoque> estoquesCreated = new ArrayList<Estoque>();
+            return estoquesCreated;
+          }
+        }
+        else{
+            throw new Exception("Chave Inválida");    
+        }
     }
 
     public List<MedicamentoCEAF> loadMedicamentosCEAF() {
